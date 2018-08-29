@@ -1,4 +1,5 @@
-require  "multi_json"
+require "multi_json"
+require 'pry'
 module Rulers
   module Model
     class FileModel
@@ -6,9 +7,8 @@ module Rulers
         @filename = filename
         basename = File.split(filename)[-1]
         @id = File.basename(basename, ".json").to_i
-
         obj = File.read(filename)
-        @hash = MultiJson.load(obj)
+        @hash = MultiJson.decode(obj)
       end
 
       def [](name)

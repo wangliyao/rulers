@@ -1,5 +1,7 @@
 require "rulers/file_model"
 require "rack/request"
+require "erubis"
+require "pry"
 
 module Rulers
   class Controller
@@ -7,6 +9,7 @@ module Rulers
 
     def initialize(env)
       @env = env
+      @routing_params = {}
     end
 
     def env
@@ -45,7 +48,22 @@ module Rulers
     end
 
     def params
-      request.params
+      request.params.merge @routing_params
+    end
+
+    def dispacth(action, routing_params = {})
+      @routing_params = routing_params
+      text = self.send(action)
+      if get_response
+        st, hd, rs = get_response.to_a
+        [st, hd, [rs].flatten]
+      else
+        [200, {'Content-Type' => 'text/html'}, [text].flatten]
+      end
+    end
+
+    def self.action(act, rp = {})
+      proc { |e| new(e).dispacth(act, rp) }
     end
   end
 end

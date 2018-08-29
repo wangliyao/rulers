@@ -6,6 +6,7 @@ require "rulers/util"
 require "rulers/dependencies"
 require "rulers/controller"
 require "rulers/file_model"
+require "pry"
 
 module Rulers
   class Application
@@ -15,15 +16,19 @@ module Rulers
         return [404, { 'Content-Type' => 'text/html' }, []]
       end
       # `echo debug > debug.txt`;
-      klass, act = get_controller_and_action(env)
-      controller = klass.new(env)
-      text = controller.send(act)
-      if controller.get_response
-        st, hd, rs = controller.get_response.to_a
-        [st, hd, [rs.body].flatten]
-      else
-      [200, { 'Content-Type' => 'text/html' }, [text]]
-      end
+      # klass, act = get_controller_and_action(env)
+      # rack_app = klass.action(act)
+      rack_app = get_rack_app(env)
+      rack_app.call(env)
+
+      # controller = klass.new(env)
+      # text = controller.send(act)
+      # if controller.get_response
+      #   st, hd, rs = controller.get_response.to_a
+      #   [st, hd, [rs.body].flatten]
+      # else
+      # [200, { 'Content-Type' => 'text/html' }, [text]]
+      # end
     end
   end
 end
